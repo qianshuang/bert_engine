@@ -5,6 +5,7 @@ import json
 from flask import Flask, jsonify
 from flask import request
 from gevent import pywsgi
+
 from common import *
 
 app = Flask(__name__)
@@ -25,11 +26,15 @@ def init_train():
     }
     """
     start = datetime.datetime.now()
+
     if not request.get_data() or request.get_data() == "":
         data_path = "data/all_data.txt"
     else:
         resq_data = json.loads(request.get_data())
         data_path = resq_data["data_path"].strip()
+        # TODO mv文件到数据目录
+
+    # TODO 训练模型
 
     result = {'code': 0, 'msg': 'success', 'time_cost': time_cost(start)}
     return jsonify(result)
