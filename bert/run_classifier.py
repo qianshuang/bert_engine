@@ -244,7 +244,8 @@ class Comm100Processor(DataProcessor):
 
     def get_labels(self):
         """See base class."""
-        return [str(i) for i in range(201)]
+        lines = self._read_tsv("../data/train.txt")
+        return [line[0] for line in lines]
 
 
 class XnliProcessor(DataProcessor):
