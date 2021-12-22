@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import json
+import shutil
+import pandas as pd
 
 from flask import Flask, jsonify
 from flask import request
 from gevent import pywsgi
 
-from common import *
+from bert_common import *
 
 app = Flask(__name__)
 
@@ -16,7 +18,7 @@ def init_train():
     """
     input json:
     {
-        "data_path": "xxxxxx"  # 初始化数据存放地址
+        "data_path": "xxxxxx"  # 初始化数据存放地址，不传默认为data/all_data.txt，数据\t分隔，第0列为label，1列为content
     }
 
     return:
@@ -27,14 +29,28 @@ def init_train():
     """
     start = datetime.datetime.now()
 
-    if not request.get_data() or request.get_data() == "":
-        data_path = "data/all_data.txt"
-    else:
+    if request.get_data():
         resq_data = json.loads(request.get_data())
         data_path = resq_data["data_path"].strip()
-        # TODO mv文件到数据目录
+        shutil.move(data_path, DATA_FILE)
 
-    # TODO 训练模型
+    if not os.path.exists(DATA_FILE):
+        result = {'code': -1, 'msg': 'fail', 'content': 'data/all_data.txt not exist!'}
+        return jsonify(result)
+
+    # 拆分训练测试集
+    df = pd.read_csv(DATA_FILE, sep='\t', dtype={'label': 'string', 'content': 'string'})
+    df_test = df.sample(frac=0.1, axis=0)
+    df_train = df[~df.index.isin(df_test.index)]
+    df_test.to_csv(TEST_FILE, sep='\t', index=False, header=False)
+    df_train.to_csv(TRAIN_FILE, sep='\t', index=False, header=False)
+
+    # 模型训练
+    train()
+
+    res = subprocess.call(["ls", "-al"])
+    if res == 0:
+        print("aaaa")
 
     result = {'code': 0, 'msg': 'success', 'time_cost': time_cost(start)}
     return jsonify(result)

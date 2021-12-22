@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import subprocess
+import os
 
-a = subprocess.call(["ls", "-al"])
-if a == 0:
-    print("aaaa")
+f = os.popen("ls -l")  # 返回的是一个文件对象
+print(f.readlines())
