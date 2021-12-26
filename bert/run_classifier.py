@@ -33,6 +33,8 @@ flags = tf.flags
 FLAGS = flags.FLAGS
 
 # Required parameters
+flags.DEFINE_string("all_labels", None, "all labels split with ','")
+
 flags.DEFINE_string(
     "data_dir", None,
     "The input data dir. Should contain the .tsv files (or other data files) "
@@ -52,8 +54,7 @@ flags.DEFINE_string(
     "output_dir", None,
     "The output directory where the model checkpoints will be written.")
 
-## Other parameters
-
+# Other parameters
 flags.DEFINE_string(
     "init_checkpoint", None,
     "Initial checkpoint (usually from a pre-trained BERT model).")
@@ -211,7 +212,7 @@ class Comm100Processor(DataProcessor):
 
     def get_train_examples(self, data_dir):
         """See base class."""
-        lines = self._read_tsv("../data/train.txt")
+        lines = self._read_tsv(data_dir + "/train.txt")
         examples = []
         for (i, line) in enumerate(lines):
             guid = "train-%d" % i
@@ -222,7 +223,7 @@ class Comm100Processor(DataProcessor):
 
     def get_dev_examples(self, data_dir):
         """See base class."""
-        lines = self._read_tsv("../data/test.txt")
+        lines = self._read_tsv(data_dir + "/test.txt")
         examples = []
         for (i, line) in enumerate(lines):
             guid = "dev-%d" % i
@@ -233,7 +234,7 @@ class Comm100Processor(DataProcessor):
 
     def get_test_examples(self, data_dir):
         """See base class."""
-        lines = self._read_tsv("../data/test.txt")
+        lines = self._read_tsv(data_dir + "/test.txt")
         examples = []
         for (i, line) in enumerate(lines):
             guid = "test-%d" % i
@@ -244,8 +245,7 @@ class Comm100Processor(DataProcessor):
 
     def get_labels(self):
         """See base class."""
-        lines = self._read_tsv("../data/train.txt")
-        return [line[0] for line in lines]
+        return FLAGS.all_labels.split(",")
 
 
 class XnliProcessor(DataProcessor):
